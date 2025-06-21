@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import ResumeForm from '@/components/ResumeForm';
@@ -7,7 +6,7 @@ import ResumeDetailView from '@/components/ResumeDetailView';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Filter, SortAsc } from 'lucide-react';
+import { Search, Filter, SortAsc, Briefcase } from 'lucide-react';
 
 interface ResumeData {
   id: string;
@@ -166,31 +165,53 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Search and Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search by company, job title, or job ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-white dark:bg-gray-800"
-            />
+        {/* Show search and filter only when there are resumes */}
+        {resumes.length > 0 && (
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search by company, job title, or job ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-white dark:bg-gray-800"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setSortBy(sortBy === 'date' ? 'company' : sortBy === 'company' ? 'title' : 'date')}
+                className="flex items-center gap-2 bg-white dark:bg-gray-800"
+              >
+                <SortAsc className="h-4 w-4" />
+                Sort by {sortBy === 'date' ? 'Date' : sortBy === 'company' ? 'Company' : 'Title'}
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setSortBy(sortBy === 'date' ? 'company' : sortBy === 'company' ? 'title' : 'date')}
-              className="flex items-center gap-2 bg-white dark:bg-gray-800"
-            >
-              <SortAsc className="h-4 w-4" />
-              Sort by {sortBy === 'date' ? 'Date' : sortBy === 'company' ? 'Company' : 'Title'}
-            </Button>
-          </div>
-        </div>
+        )}
 
         {/* Resume Grid */}
-        {filteredResumes.length === 0 ? (
+        {resumes.length === 0 ? (
+          // Show when all resumes are deleted
+          <div className="text-center py-16">
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Briefcase className="w-12 h-12 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+              Ready to Start Your Job Search?
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
+              You don't have any job applications yet. Create your first application to start tracking your career opportunities and stay organized throughout your job search journey.
+            </p>
+            <Button 
+              onClick={() => setIsFormOpen(true)}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              Create Your First Application
+            </Button>
+          </div>
+        ) : filteredResumes.length === 0 ? (
+          // Show when search returns no results
           <div className="text-center py-16">
             <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,22 +219,11 @@ const Dashboard = () => {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              {searchTerm ? 'No applications found' : 'No applications yet'}
+              No applications found
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              {searchTerm 
-                ? 'Try adjusting your search terms' 
-                : 'Create your first job application to get started'
-              }
+              Try adjusting your search terms
             </p>
-            {!searchTerm && (
-              <Button 
-                onClick={() => setIsFormOpen(true)}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-              >
-                Create Your First Application
-              </Button>
-            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
