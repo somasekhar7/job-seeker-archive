@@ -17,6 +17,7 @@ interface CustomSection {
 
 interface ResumeData {
   id?: string;
+  jobId?: string;
   companyName: string;
   jobTitle: string;
   jobDescription: string;
@@ -37,14 +38,37 @@ interface ResumeFormProps {
 
 const ResumeForm: React.FC<ResumeFormProps> = ({ isOpen, onClose, onSubmit, initialData, mode }) => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState<ResumeData>({
-    companyName: initialData?.companyName || '',
-    jobTitle: initialData?.jobTitle || '',
-    jobDescription: initialData?.jobDescription || '',
-    customSections: initialData?.customSections || [],
-    ...initialData
-  });
+  
+  // Always start with empty form for create mode, or use initialData for edit mode
+  const getInitialFormData = (): ResumeData => {
+    if (mode === 'create') {
+      return {
+        jobId: '',
+        companyName: '',
+        jobTitle: '',
+        jobDescription: '',
+        customSections: []
+      };
+    }
+    return {
+      jobId: initialData?.jobId || '',
+      companyName: initialData?.companyName || '',
+      jobTitle: initialData?.jobTitle || '',
+      jobDescription: initialData?.jobDescription || '',
+      customSections: initialData?.customSections || [],
+      ...initialData
+    };
+  };
+
+  const [formData, setFormData] = useState<ResumeData>(getInitialFormData());
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Reset form data when mode changes or dialog opens/closes
+  useState(() => {
+    if (isOpen) {
+      setFormData(getInitialFormData());
+    }
+  });
 
   const handleInputChange = (field: keyof ResumeData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -129,6 +153,16 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ isOpen, onClose, onSubmit, init
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="jobId">Job ID</Label>
+              <Input
+                id="jobId"
+                value={formData.jobId}
+                onChange={(e) => handleInputChange('jobId', e.target.value)}
+                placeholder="e.g. JOB-2024-001, REQ-1234"
+                className="bg-white dark:bg-gray-700"
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="companyName">Company Name *</Label>
               <Input
                 id="companyName"
@@ -139,17 +173,18 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ isOpen, onClose, onSubmit, init
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="jobTitle">Job Title *</Label>
-              <Input
-                id="jobTitle"
-                value={formData.jobTitle}
-                onChange={(e) => handleInputChange('jobTitle', e.target.value)}
-                placeholder="e.g. Software Engineer, Product Manager"
-                className="bg-white dark:bg-gray-700"
-                required
-              />
-            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="jobTitle">Job Title *</Label>
+            <Input
+              id="jobTitle"
+              value={formData.jobTitle}
+              onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+              placeholder="e.g. Software Engineer, Product Manager"
+              className="bg-white dark:bg-gray-700"
+              required
+            />
           </div>
 
           <div className="space-y-2">

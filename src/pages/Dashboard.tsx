@@ -11,6 +11,7 @@ import { Search, Filter, SortAsc } from 'lucide-react';
 
 interface ResumeData {
   id: string;
+  jobId?: string;
   companyName: string;
   jobTitle: string;
   jobDescription: string;
@@ -37,6 +38,7 @@ const Dashboard = () => {
     const demoData: ResumeData[] = [
       {
         id: '1',
+        jobId: 'JOB-2024-001',
         companyName: 'Google',
         jobTitle: 'Senior Software Engineer',
         jobDescription: 'We are looking for a senior software engineer to join our team and work on cutting-edge technology that impacts billions of users worldwide. You will be responsible for designing and implementing scalable systems.',
@@ -49,6 +51,7 @@ const Dashboard = () => {
       },
       {
         id: '2',
+        jobId: 'REQ-MS-456',
         companyName: 'Microsoft',
         jobTitle: 'Product Manager',
         jobDescription: 'Join our product team to drive innovation in cloud computing. You will work closely with engineering teams to define product roadmaps and deliver features that delight customers.',
@@ -76,7 +79,8 @@ const Dashboard = () => {
   useEffect(() => {
     let filtered = resumes.filter(resume => 
       resume.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resume.jobTitle.toLowerCase().includes(searchTerm.toLowerCase())
+      resume.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (resume.jobId && resume.jobId.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     // Sort resumes
@@ -167,7 +171,7 @@ const Dashboard = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search by company or job title..."
+              placeholder="Search by company, job title, or job ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-white dark:bg-gray-800"
